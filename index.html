@@ -222,6 +222,12 @@ const STUDYO = "Voo Game Studio";
   $("tag").textContent = OYUN.etiket;
   $("name").textContent = OYUN.isim;
   $("lead").textContent = OYUN.aciklama;
+  // Tıklama analizi (GoatCounter): her butona tıklama ayrı olay olarak sayılır
+  function track(name, title) {
+    try { if (window.goatcounter && window.goatcounter.count) window.goatcounter.count({ path: name, title: title, event: true }); } catch (e) {}
+  }
+  $("ios").addEventListener("click", () => track("tik-stockguys-ios", "Stock Guys → App Store"));
+  $("android").addEventListener("click", () => track("tik-stockguys-android", "Stock Guys → Google Play"));
   $("ios").href = OYUN.ios;
   $("android").href = OYUN.android;
   
@@ -250,6 +256,9 @@ const STUDYO = "Voo Game Studio";
     const as = links.querySelectorAll("a");
     if (g.ios) as[0].href = g.ios;
     if (g.android) as[as.length - 1].href = g.android;
+    const slug = g.isim.toLowerCase().replace(/[^a-z0-9]+/g, "-");
+    if (g.ios) as[0].addEventListener("click", () => track("tik-" + slug + "-ios", g.isim + " → App Store"));
+    if (g.android) as[as.length - 1].addEventListener("click", () => track("tik-" + slug + "-android", g.isim + " → Google Play"));
     row.append(ic, info, links);
     list.appendChild(row);
   });
@@ -258,11 +267,13 @@ const STUDYO = "Voo Game Studio";
 
   $("share").addEventListener("click", async () => {
     const btn = $("share");
+    track("tik-link-kopyala", "Linki kopyala");
     try { await navigator.clipboard.writeText(location.href); btn.textContent = "Link kopyalandı"; }
     catch (e) { btn.textContent = location.href; }
     setTimeout(() => (btn.textContent = "Linki kopyala"), 2500);
   });
 })();
 </script>
+<script data-goatcounter="https://voogamestudio.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 </body>
 </html>
