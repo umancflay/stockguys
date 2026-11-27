@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Stock Guys: Market Simülatörü</title>
+<meta name="description" content="Arkadaşlarınla aynı markette çalış! Stock Guys'ı iPhone ve Android için ücretsiz indir.">
+<meta property="og:title" content="Stock Guys: Market Simülatörü">
+<meta property="og:description" content="Arkadaşlarınla aynı markette çalış! iPhone ve Android için ücretsiz indir.">
+<meta property="og:image" content="icons/stockguys.webp">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#FF6A1A">
+<link rel="icon" href="favicon.webp" type="image/webp">
+<link rel="apple-touch-icon" href="favicon.webp">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&display=swap">
+<style>
+/* Layout: tek sütun, telefon ekranına göre kurulmuş link kartı; üstte ana oyun, altta diğer oyunlar listesi */
+:root {
+  --bg: #EEF1F6;
+  --surface: #FFFFFF;
+  --line: #DCE1EA;
+  --fg: #141A26;
+  --muted: #5A6476;
+  --accent: #FF6A1A;
+  --accent-ink: #FFFFFF;
+  --btn: #141A26;
+  --btn-fg: #FFFFFF;
+  --glow: rgba(255,106,26,.18);
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0E121B; --surface: #171D2A; --line: #273044; --fg: #EEF1F7; --muted: #98A2B6;
+    --accent: #FF7A2E; --accent-ink: #1A0E05; --btn: #EEF1F7; --btn-fg: #0E121B; --glow: rgba(255,122,46,.22);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0E121B; --surface: #171D2A; --line: #273044; --fg: #EEF1F7; --muted: #98A2B6;
+  --accent: #FF7A2E; --accent-ink: #1A0E05; --btn: #EEF1F7; --btn-fg: #0E121B; --glow: rgba(255,122,46,.22);
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 32px;
+  background-image: radial-gradient(circle at 50% -10%, var(--glow), transparent 55%);
+  background-repeat: no-repeat;
+}
+.wrap { max-width: 460px; margin: 0 auto; display: flex; flex-direction: column; gap: 36px; }
+
+/* Ana oyun */
+.hero { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 14px; }
+.app-icon {
+  width: 112px; height: 112px; border-radius: 26px;
+  background: linear-gradient(145deg, var(--accent), #FFB020);
+  display: grid; place-items: center;
+  font-family: var(--display); font-weight: 800; font-size: 52px; color: #fff;
+  box-shadow: 0 14px 34px var(--glow);
+  overflow: hidden;
+}
+.app-icon img { width: 100%; height: 100%; object-fit: cover; }
+.tag {
+  font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--accent);
+}
+h1 {
+  font-family: var(--display); font-weight: 800; font-size: clamp(32px, 9vw, 42px);
+  line-height: 1.05; margin: 0; text-wrap: balance; letter-spacing: -.01em;
+}
+.lead { margin: 0; color: var(--muted); max-width: 34ch; }
+
+.stores { display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 8px; }
+.store {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 18px; border-radius: 16px;
+  background: var(--btn); color: var(--btn-fg);
+  text-decoration: none; transition: transform .15s ease, box-shadow .15s ease;
+  position: relative;
+}
+.store:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.18); }
+.store:focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; }
+.store svg { width: 28px; height: 28px; flex: none; fill: currentColor; }
+.store .txt { display: flex; flex-direction: column; text-align: left; line-height: 1.2; }
+.store small { font-size: 12px; opacity: .75; }
+.store strong { font-family: var(--display); font-weight: 600; font-size: 20px; }
+.store .arrow { margin-left: auto; font-size: 20px; opacity: .6; }
+.store.mine { background: var(--accent); color: var(--accent-ink); }
+.store.mine::after {
+  content: "Senin cihazın"; position: absolute; top: -9px; right: 14px;
+  font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 99px;
+  background: var(--surface); color: var(--fg); border: 1px solid var(--line);
+}
+
+.share {
+  margin-top: 4px; background: none; border: 1px solid var(--line); color: var(--muted);
+  font: 500 14px var(--body); padding: 8px 16px; border-radius: 99px; cursor: pointer;
+}
+.share:hover { color: var(--fg); border-color: var(--muted); }
+.share:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+/* Diğer oyunlar */
+.more h2 {
+  font-family: var(--display); font-weight: 600; font-size: 22px; margin: 0 0 14px;
+}
+.list { display: flex; flex-direction: column; gap: 10px; }
+.game {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px; border-radius: 16px;
+  background: var(--surface); border: 1px solid var(--line);
+}
+.g-icon {
+  width: 56px; height: 56px; border-radius: 14px; flex: none;
+  display: grid; place-items: center; overflow: hidden;
+  font-family: var(--display); font-weight: 800; font-size: 24px; color: #fff;
+}
+.g-icon img { width: 100%; height: 100%; object-fit: cover; }
+.g-info { flex: 1; min-width: 0; }
+.g-info strong { display: block; font-weight: 600; font-size: 16px; }
+.g-info span { display: block; font-size: 13px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.g-links { display: flex; gap: 6px; flex: none; }
+.mini {
+  width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center;
+  background: var(--bg); color: var(--fg); border: 1px solid var(--line); text-decoration: none;
+}
+.mini svg { width: 20px; height: 20px; fill: currentColor; }
+.mini:hover { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.mini:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+footer { text-align: center; font-size: 13px; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) { .store { transition: none; } .store:hover { transform: none; } }
+</style>
+</head>
+<body>
+
+<!--
+  ===== DÜZENLEME =====
+  Sadece aşağıdaki OYUN ve DIGER_OYUNLAR bilgilerini değiştir.
+  icon: oyun ikonunun resim linki (https://...). Boş bırakırsan baş harf gösterilir.
+-->
+<script>
+const OYUN = {
+  isim: "Stock Guys",
+  etiket: "Market Simülatörü · Ücretsiz",
+  aciklama: "Arkadaşlarınla aynı markette çalış: raf doldur, kasaya geç, marketini dev bir mağazaya dönüştür!",
+  icon: "icons/stockguys.webp",
+  android: "https://play.google.com/store/apps/details?id=com.voogamestudio.stockguys",
+  ios: "https://apps.apple.com/tr/app/stock-guys-market-sim%C3%BClat%C3%B6r%C3%BC/id6826905571?l=tr"
+};
+
+// ios: "" bırakılan oyunlarda sadece Google Play butonu çıkar
+const P = "https://play.google.com/store/apps/details?id=";
+const DIGER_OYUNLAR = [
+  { isim: "Haul Guys", aciklama: "Taşınma Kaosu", icon: "icons/haulguys.webp", android: P + "com.haulguys.game", ios: "" },
+  { isim: "Toy-Nado", aciklama: "3D Eşleştirme Oyunu", icon: "icons/toynado.webp", android: P + "com.voogamestudio.toynado", ios: "" },
+  { isim: "Brick Gate", aciklama: "Color Block Puzzle", icon: "icons/brickgate.webp", android: P + "com.voogamestudio.brickgate", ios: "" },
+  { isim: "Borsa Tycoon", aciklama: "Idle Empire", icon: "icons/borsa.webp", android: P + "com.voogamestudio.borsa", ios: "" },
+  { isim: "Salgın", aciklama: "Başhekim", icon: "icons/salgin.webp", android: P + "com.voogamestudio.salgin", ios: "" },
+  { isim: "DropMaster", aciklama: "Global Tycoon", icon: "icons/dropmaster.webp", android: P + "com.dropmaster.tycoon", ios: "" },
+  { isim: "Rengi Yakala", aciklama: "Farklı Olanı Bul", icon: "icons/rengiyakala.webp", android: P + "com.rengiyakala.game", ios: "" }
+];
+
+const STUDYO = "Voo Game Studio";
+</script>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="app-icon" id="appIcon"></div>
+    <span class="tag" id="tag"></span>
+    <h1 id="name"></h1>
+    <p class="lead" id="lead"></p>
+
+    <div class="stores">
+      <a class="store" id="ios" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16.4 12.6c0-2.3 1.9-3.4 2-3.5-1.1-1.6-2.8-1.8-3.4-1.8-1.4-.2-2.8.8-3.5.8-.7 0-1.8-.8-3-.8-1.5 0-3 .9-3.8 2.3-1.6 2.8-.4 7 1.2 9.3.8 1.1 1.7 2.4 2.9 2.3 1.2 0 1.6-.7 3-.7s1.8.7 3 .7c1.3 0 2-1.1 2.8-2.3.9-1.3 1.2-2.5 1.3-2.6-.1 0-2.5-.9-2.5-3.7zM14.1 5.8c.6-.8 1.1-1.8 1-2.8-.9 0-2 .6-2.7 1.4-.6.7-1.1 1.7-1 2.7 1 .1 2-.5 2.7-1.3z"/></svg>
+        <span class="txt"><small>App Store'dan</small><strong>iPhone için indir</strong></span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </a>
+      <a class="store" id="android" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3.6 2.3c-.3.3-.4.7-.4 1.2v17c0 .5.1.9.4 1.2l9.5-9.7L3.6 2.3zm10.6 8.6 2.7-2.7L5.3 1.6c-.4-.2-.8-.3-1.1-.2l10 9.5zm0 2.2-10 9.5c.3.1.7 0 1.1-.2l11.6-6.6-2.7-2.7zm6.6-2.7-2.8-1.6-3 3 3 3 2.8-1.6c.8-.5.8-2.3 0-2.8z"/></svg>
+        <span class="txt"><small>Google Play'den</small><strong>Android için indir</strong></span>
+        <span class="arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+
+    <button class="share" id="share" type="button">Linki kopyala</button>
+  </section>
+
+  <section class="more" aria-labelledby="moreTitle">
+    <h2 id="moreTitle">Diğer oyunlarımız</h2>
+    <div class="list" id="list"></div>
+  </section>
+
+  <footer id="footer"></footer>
+</main>
+
+<script>
+(function () {
+  const $ = (id) => document.getElementById(id);
+  const APPLE = $("ios").querySelector("svg").outerHTML;
+  const PLAY = $("android").querySelector("svg").outerHTML;
+
+  function setIcon(el, src, name, color) {
+    if (src) { const i = new Image(); i.src = src; i.alt = name; el.appendChild(i); }
+    else { el.textContent = (name || "?").trim().charAt(0).toUpperCase(); if (color) el.style.background = color; }
+  }
+
+  setIcon($("appIcon"), OYUN.icon, OYUN.isim);
+  $("tag").textContent = OYUN.etiket;
+  $("name").textContent = OYUN.isim;
+  $("lead").textContent = OYUN.aciklama;
+  $("ios").href = OYUN.ios;
+  $("android").href = OYUN.android;
+  
+
+  // Ziyaretçinin cihazına göre ilgili butonu öne çıkar
+  const ua = navigator.userAgent || "";
+  if (/android/i.test(ua)) { $("android").classList.add("mine"); $("android").parentNode.prepend($("android")); }
+  else if (/iphone|ipad|ipod|macintosh/i.test(ua) && "ontouchend" in document) { $("ios").classList.add("mine"); }
+
+  const list = $("list");
+  DIGER_OYUNLAR.forEach((g) => {
+    const row = document.createElement("div");
+    row.className = "game";
+    const ic = document.createElement("div");
+    ic.className = "g-icon";
+    setIcon(ic, g.icon, g.isim, g.renk);
+    const info = document.createElement("div");
+    info.className = "g-info";
+    const s = document.createElement("strong"); s.textContent = g.isim;
+    const d = document.createElement("span"); d.textContent = g.aciklama;
+    info.append(s, d);
+    const links = document.createElement("div");
+    links.className = "g-links";
+    if (g.ios) links.insertAdjacentHTML("beforeend", `<a class="mini" target="_blank" rel="noopener" aria-label="${g.isim} App Store">${APPLE}</a>`);
+    if (g.android) links.insertAdjacentHTML("beforeend", `<a class="mini" target="_blank" rel="noopener" aria-label="${g.isim} Google Play">${PLAY}</a>`);
+    const as = links.querySelectorAll("a");
+    if (g.ios) as[0].href = g.ios;
+    if (g.android) as[as.length - 1].href = g.android;
+    row.append(ic, info, links);
+    list.appendChild(row);
+  });
+
+  $("footer").textContent = "© " + new Date().getFullYear() + " " + STUDYO;
+
+  $("share").addEventListener("click", async () => {
+    const btn = $("share");
+    try { await navigator.clipboard.writeText(location.href); btn.textContent = "Link kopyalandı"; }
+    catch (e) { btn.textContent = location.href; }
+    setTimeout(() => (btn.textContent = "Linki kopyala"), 2500);
+  });
+})();
+</script>
+</body>
+</html>
